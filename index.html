@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-right: 10px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            margin-bottom: 10px;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #424445;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 15px;
+            margin-left: 20px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #output-container {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .card img {
+            max-width: 80%;
+            max-height: 65%;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            margin: 10px 0;
+        }
+
+        .card p:first-child {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tags span {
+            background-color: #3498db;
+            color: #fff;
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-content iframe {
+            width: 100%;
+            height: 300px;
+        }
+
+        .modal-content a {
+            display: block;
+            padding: 10px;
+            background-color: #3498db;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: -300px; 
+        }
+
+        .modal-content a:hover {
+            background-color: #2980b9;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <label for="start-date">From:</label>
+    <input type="date" id="start-date">
+
+    <label for="end-date">To:</label>
+    <input type="date" id="end-date">
+
+    <label for="search-movie">Search:</label>
+    <input type="text" id="search-movie" placeholder="Enter movie name">
+
+    <button onclick="submitDates()">Submit</button>
+
+    <div id="output-container"></div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content" id="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="modal-title">Movie Title</h2>
+            <p id="modal-rating">Rating: 8.9</p>
+            <p id="modal-genres">Genres: Action, Adventure</p>
+            <iframe id="modal-trailer" src="" frameborder="0" allowfullscreen></iframe>
+            <a id="modal-trailer-link" target="_blank">Watch Trailer</a>
+            <button onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const jsonData = [
+            { date: "2023-03-02", name: "Indiana Jones and the Call of Destiny", image: "/home/agile/Downloads/indian jones.jpg", message: "2023 2h 34m", rating: 8.9, genres: ["Action", "Adventure"], id: 1, trailer: "https://www.youtube.com/watch?v=eQfMbSe7F2g" },
+            { date: "2023-07-04", name: "No Hard Feelings", image: "/home/agile/Downloads/no-hard-feelings-2023.jpg", message: "2023 2h 43m", rating: 5.8, genres: ["Drama"], id: 2, trailer: "https://www.youtube.com/watch?v=W3-slBOV84w" },
+            { date: "2023-04-16", name: "Asteroid City", image: "/home/agile/Downloads/scarlett-johansson-asteroid-city-poster-and-trailer-0.jpg", message: "2023 1h 45m", rating: 7.1, genres: ["Sci-Fi"], id: 3, trailer: "https://www.youtube.com/watch?v=YP8O5AnnpCc"},
+            { date: "2023-06-16", name: "The Flash", image: "/home/agile/Downloads/flash movie.jpg", message: "2023 2h 24m", rating: 7.2, genres: ["Action", "Sci-Fi"], id: 4, trailer: "https://www.youtube.com/watch?v=jprhe-cWKGs" },
+            { date: "2023-03-12", name: "The Gifted", image: "/home/agile/Downloads/the gifted.jpg", message: "2023 2h 12m", rating: 8.5, genres: ["Action"], id: 4, trailer: "https://www.youtube.com/watch?v=3pDdXYf3nfc" },
+        ];
+
+        async function fetchMovies() {
+            return jsonData;
+        }
+
+        async function submitDates() {
+            const startDate = document.getElementById("start-date").value;
+            const endDate = document.getElementById("end-date").value;
+            const searchKeyword = document.getElementById("search-movie").value.toLowerCase();
+
+            
+            if (!startDate && !endDate && !searchKeyword) {
+                return;
+            }
+
+            const moviesData = await fetchMovies();
+
+            let filteredData = moviesData;
+
+            if (startDate && endDate) {
+                const startDateFormat = startDate.split("-").reverse().join("/");
+                const endDateFormat = endDate.split("-").reverse().join("/");
+
+                filteredData = filteredData.filter(item => {
+                    const itemDate = new Date(item.date);
+                    return itemDate >= new Date(startDateFormat) && itemDate <= new Date(endDateFormat);
+                });
+            }
+
+            if (searchKeyword) {
+                filteredData = filteredData.filter(item => item.name.toLowerCase().includes(searchKeyword));
+            }
+
+            displayData(filteredData);
+        }
+
+        function displayData(data) {
+            const outputContainer = document.getElementById("output-container");
+            outputContainer.innerHTML = "";
+
+            data.forEach(item => {
+                const card = document.createElement("div");
+                card.classList.add("card");
+
+                const image = document.createElement("img");
+                image.src = item.image;
+                image.alt = item.name;
+
+                const rating = document.createElement("p");
+                rating.textContent = `Rating: ${item.rating}`;
+
+                const name = document.createElement("p");
+                name.textContent = `${item.name}`;
+
+                const message = document.createElement("p");
+                message.textContent = `${item.message}`;
+
+                const date = document.createElement("button");
+                date.textContent = `${item.date}`;
+   
+                card.appendChild(image);
+                card.appendChild(rating);
+                card.appendChild(name);
+                card.appendChild(message);
+                card.appendChild(date);
+
+                const modalButton = document.createElement("button");
+                modalButton.textContent = "View More";
+                modalButton.addEventListener("click", () => openModal(item, item.image));
+
+                card.appendChild(modalButton);
+
+                outputContainer.appendChild(card);
+            });
+        }
+
+        function openModal(movie, imageSrc) {
+            const modal = document.getElementById("modal");
+            const modalContent = document.getElementById("modal-content");
+
+            document.getElementById("modal-title").textContent = movie.name;
+            document.getElementById("modal-rating").textContent = `Rating: ${movie.rating}`;
+
+            const image = document.createElement("img");
+            image.src = imageSrc;
+            image.alt = movie.name;
+            image.style.maxWidth = "100%";
+            image.style.maxHeight = "300px";
+
+            document.getElementById("modal-trailer").innerHTML = "";
+            document.getElementById("modal-trailer").appendChild(image);
+
+            const trailerLink = document.getElementById("modal-trailer-link");
+            trailerLink.href = movie.trailer;
+            trailerLink.style.display = "block";
+
+            modal.style.display = "flex";
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("modal");
+            modal.style.display = "none";
+        }
+
+        document.addEventListener('keydown', function(event) {
+            const modal = document.getElementById("modal");
+            if (event.key === "Escape" && modal.style.display === "flex") {
+                closeModal();
+            }
+        });
+
+        window.addEventListener('popstate', function(event) {
+            closeModal();
+        });
+        
+    </script>
+</body>
+</html>
