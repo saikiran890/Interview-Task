@@ -180,7 +180,6 @@
             const endDate = document.getElementById("end-date").value;
             const searchKeyword = document.getElementById("search-movie").value.toLowerCase();
 
-            
             if (!startDate && !endDate && !searchKeyword) {
                 return;
             }
@@ -190,12 +189,12 @@
             let filteredData = moviesData;
 
             if (startDate && endDate) {
-                const startDateFormat = startDate.split("-").reverse().join("/");
-                const endDateFormat = endDate.split("-").reverse().join("/");
+                const startDateFormat = new Date(startDate);
+                const endDateFormat = new Date(endDate);
 
                 filteredData = filteredData.filter(item => {
                     const itemDate = new Date(item.date);
-                    return itemDate >= new Date(startDateFormat) && itemDate <= new Date(endDateFormat);
+                    return itemDate >= startDateFormat && itemDate <= endDateFormat;
                 });
             }
 
