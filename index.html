@@ -255,10 +255,6 @@
     messageContainer.textContent = "No movies found. Please try different search criteria.";
     outputContainer.appendChild(messageContainer);
     return;
-  } else{
-  const guidanceMessage = document.createElement("p");
-  guidanceMessage.textContent = "Please click on 'VIEW MORE' to know more about the movie.";
-  outputContainer.appendChild(guidanceMessage);
   }
 
   data.forEach((item) => {
