@@ -41,16 +41,16 @@
       }
 
       #output-container {
-  margin-top: 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  text-align: center;
-}
+        margin-top: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        text-align: center;
+      }
 
-#output-container p {
-  margin: 0; 
-}
+      #output-container p {
+        margin: 20px;
+      }
       .card {
         background-color: #fff;
         padding: 20px;
@@ -66,17 +66,18 @@
       }
 
       .card p {
-  margin: 10px 0;
-  white-space: nowrap; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
+        margin: 10px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .dark-black-title {
+  color: #000000;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
-      .card p:first-child {
-        font-size: 1.2em;
-        font-weight: bold;
-        margin-bottom: 10px;
-      }
 
       .tags {
         display: flex;
@@ -141,12 +142,9 @@
         font-size: 1.2em;
         color: #888;
       }
-
-
     </style>
   </head>
   <body>
-
     <label for="start-date">From:</label>
     <input type="date" id="start-date" />
 
@@ -163,9 +161,8 @@
     <div class="modal" id="modal">
       <div class="modal-content" id="modal-content">
         <span class="close-modal" onclick="closeModal()">&times;</span>
-        <h2 id="modal-title">Movie Title</h2>
-         <p id="modal-rating">Rating: 8.9</p>
-        <p id="modal-genres">Genres: Action, Adventure</p>
+        <h2 id="modal-title" class="dark-black-title">Movie Title</h2>
+        <p id="modal-overview">Description</p>
         <iframe
           id="modal-trailer"
           src=""
@@ -178,7 +175,6 @@
     </div>
 
     <script>
-
       async function fetchMovies() {
         const url = "https://movies-api14.p.rapidapi.com/movies";
         const options = {
@@ -246,48 +242,71 @@
         displayData(filteredData);
       }
 
-   function displayData(data) {
-  const outputContainer = document.getElementById("output-container");
-  outputContainer.innerHTML = "";
+      function displayData(data) {
+        const outputContainer = document.getElementById("output-container");
+        outputContainer.innerHTML = "";
 
-  if (data.length === 0) {
-    const messageContainer = document.createElement("div");
-    messageContainer.textContent = "No movies found. Please try different search criteria.";
-    outputContainer.appendChild(messageContainer);
-    return;
-  }
+        if (data.length === 0) {
+          const messageContainer = document.createElement("div");
+          messageContainer.textContent =
+            "No movies found. Please try different search criteria.";
+          outputContainer.appendChild(messageContainer);
+          return;
+        }
 
-  data.forEach((item) => {
-    const card = document.createElement("div");
-    card.classList.add("card");
+        data.forEach(async (item) => {
+          const card = document.createElement("div");
+          card.classList.add("card");
 
-    const image = document.createElement("img");
-    image.src = item.poster_path;
-    image.alt = item.title;
+          const image = document.createElement("img");
+          image.src = item.poster_path;
+          image.alt = item.title;
 
-    const name = document.createElement("p");
-    name.textContent = `${item.title}`;
+          const name = document.createElement("p");
+          name.textContent = `${item.title}`;
+          name.classList.add("dark-black-title");
 
-    const message = document.createElement("p");
-    message.textContent = `${item.overview}`;
+          const rating = document.createElement("p");
+          rating.textContent = `Rating: ${await getMovieRating(item._id)}`;
 
-    const date = document.createElement("button");
-    date.textContent = `${item.release_date}`;
+          const genre = document.createElement("p");
+          genre.textContent = `Genres: ${item.genres.join(", ")}`;
 
-    card.appendChild(image);
-    card.appendChild(name);
-    card.appendChild(message);
-    card.appendChild(date);
+          const date = document.createElement("button");
+          date.textContent = `${item.release_date}`;
 
-    const modalButton = document.createElement("button");
-    modalButton.textContent = "View More";
-    modalButton.addEventListener("click", () => openModal(item._id));
+          card.appendChild(image);
+          card.appendChild(name);
+          card.appendChild(rating);
+          card.appendChild(genre);
 
-    card.appendChild(modalButton);
+          card.appendChild(date);
 
-    outputContainer.appendChild(card);
-  });
-}
+          const modalButton = document.createElement("button");
+          modalButton.textContent = "Watch Trailer";
+          modalButton.addEventListener("click", () => openModal(item._id));
+
+          card.appendChild(modalButton);
+
+          outputContainer.appendChild(card);
+        });
+      }
+
+      async function getMovieRating(id) {
+        const url = "https://movies-api14.p.rapidapi.com/movie/" + id;
+        const options = {
+          method: "GET",
+          headers: {
+            "X-RapidAPI-Key":
+              "3d613725c8mshcc1e0892b612ed5p1a130cjsn1070bdb978c0",
+            "X-RapidAPI-Host": "movies-api14.p.rapidapi.com",
+          },
+        };
+
+        const response = await fetch(url, options);
+        movie = await response.json();
+        return movie.movie.vote_average.toFixed(2);
+      }
 
       async function openModal(id) {
         const modal = document.getElementById("modal");
@@ -304,11 +323,8 @@
 
         const response = await fetch(url, options);
         movie = await response.json();
+        console.log(movie);
         document.getElementById("modal-title").textContent = movie.movie.title;
-        // document.getElementById(
-        //   "modal-rating"
-        // ).textContent = `Rating: ${movie.rating}`;
-
         const image = document.createElement("img");
         image.src = movie.movie.poster_path;
         image.alt = movie.movie.title;
@@ -317,7 +333,8 @@
 
         document.getElementById("modal-trailer").innerHTML = "";
         document.getElementById("modal-trailer").appendChild(image);
-
+        document.getElementById("modal-overview").innerHTML =
+          movie.movie.overview;
         const trailerLink = document.getElementById("modal-trailer-link");
         trailerLink.href = movie.movie.youtube_trailer;
         trailerLink.style.display = "block";
