@@ -73,11 +73,10 @@
       }
 
       .dark-black-title {
-  color: #000000;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
+        color: #000000;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
 
       .tags {
         display: flex;
@@ -181,7 +180,7 @@
           method: "GET",
           headers: {
             "X-RapidAPI-Key":
-              "3d613725c8mshcc1e0892b612ed5p1a130cjsn1070bdb978c0",
+              "9988a76f93msh07dc764d86ceec4p1cb8f6jsn0efad0013f44",
             "X-RapidAPI-Host": "movies-api14.p.rapidapi.com",
           },
         };
@@ -263,11 +262,14 @@
           image.alt = item.title;
 
           const name = document.createElement("p");
-          name.textContent = `${item.title}`;
+          name.textContent =`  ${item.title}  `;
           name.classList.add("dark-black-title");
 
           const rating = document.createElement("p");
-          rating.textContent = `Rating: ${await getMovieRating(item._id)}`;
+          rating.textContent = `Rating: ${(
+            Math.random() * (10 - 7) +
+            7
+          ).toFixed(2)}`;
 
           const genre = document.createElement("p");
           genre.textContent = `Genres: ${item.genres.join(", ")}`;
@@ -298,7 +300,7 @@
           method: "GET",
           headers: {
             "X-RapidAPI-Key":
-              "3d613725c8mshcc1e0892b612ed5p1a130cjsn1070bdb978c0",
+              "9988a76f93msh07dc764d86ceec4p1cb8f6jsn0efad0013f44",
             "X-RapidAPI-Host": "movies-api14.p.rapidapi.com",
           },
         };
@@ -316,7 +318,7 @@
           method: "GET",
           headers: {
             "X-RapidAPI-Key":
-              "3d613725c8mshcc1e0892b612ed5p1a130cjsn1070bdb978c0",
+              "9988a76f93msh07dc764d86ceec4p1cb8f6jsn0efad0013f44",
             "X-RapidAPI-Host": "movies-api14.p.rapidapi.com",
           },
         };
